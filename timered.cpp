@@ -19,6 +19,7 @@ private:
     unsigned long _time_next = 0; //tempo de quando deve ser a proxima funcão
     unsigned long _time_interval = 0; //a cada quanto tempo
     bool _is_cyclic = true; // vai ficar re-executando?
+    bool _is_run = true;//se tiver como false, pausa a execução ate virar true
 
 
 public:
@@ -28,6 +29,7 @@ public:
     void set_time_end(unsigned long interval_ms, bool is_cyclic);
     unsigned long get_time_end(bool calculate_diference);
     bool verify();
+    void can_execute(bool is_run); 
 
     void time_funcion(void (*name_callback)(void), unsigned long interval_ms, bool is_cyclic);
     void vrf_function();
@@ -75,6 +77,11 @@ bool timered::verify(){
 }
 
 
+
+void timered::can_execute(bool is_run){
+    this->_is_run = is_run;
+}
+
 void timered::time_funcion(void (*name_callback)(void), unsigned long interval_ms, bool is_cyclic){
     if (name_callback != __null){
         this->_callback = name_callback;
@@ -84,7 +91,14 @@ void timered::time_funcion(void (*name_callback)(void), unsigned long interval_m
 }
 
 void timered::vrf_function(){
-    if(this->verify() == true ){
-        this->_callback();
+    if(this->_is_run == true){
+          
+        if(this->verify() == true ){
+            this->_callback();
+        }
+    }else{
+        //pausada, entao vai ficar sempre adiando a execucao, vai ser sempre pra daqui x tempo, ate o momento que is run for true
+        this->set_time_end(this->_time_interval, this->_is_cyclic);
     }
+
 }

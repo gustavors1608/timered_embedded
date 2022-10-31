@@ -1,6 +1,8 @@
-//executa um blink no pino 2 a cada 2000ms enquando manda mensagem pra serial a cada 1000ms
+
 #include <Arduino.h>
 #include "timered.cpp"
+
+bool flag_execute = true;
 
 //objeto da lib para controlar um led
 timered led;
@@ -9,23 +11,18 @@ timered notify;
 //funcao callback, fica invertendo o estado do led
 void blink(){
   digitalWrite(2, !digitalRead(2));
-  if(digitalRead(2) == false){
-    Serial.println(" Apaguei");
-  }
 }
 
 //funcao callback, envia mensagem
 void send_mensage(){
-  Serial.print("falta ");
-  Serial.print(led.get_time_end(true));
-  Serial.println(" ms para o led mudar seu estado ");
+  led.can_execute(flag_execute);
+  flag_execute = !flag_execute;
 }
 void setup() {
   pinMode(2, OUTPUT);
-  Serial.begin(115200);
 
   //configura as funcoes de callback, o intervalo de tempo e se deve ser ciclica
-  led.time_funcion(blink,2000,true);
+  led.time_funcion(blink,100,true);
   notify.time_funcion(send_mensage,1000, true);
 }
 
